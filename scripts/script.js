@@ -1,18 +1,20 @@
-const cardContainer = document.querySelector(".container");
+const cardContainer = document.querySelector(".accounts-cards-container");
 const showDetails = document.querySelector("Show-Details");
-const btnDelete = document.querySelector(".btn-delete");
 const listItemUserID = document.querySelector("#userid");
 
-fetch("http://localhost:9191/getAllAccounts")
+const getAllAccounts = () => {
+  cardContainer.innerHTML = '';
+  fetch("http://localhost:9191/getAllAccounts")
   .then((response) => response.json())
   .then((data) => {
     const displayAccountDetails = function (data) {
+      let html = '';
       data.forEach((acc, i) => {
-        const html = `
+        html += `
   <div class="card container" style="width: 18rem">
     <img class="card-img-top" src="/assets/images/bank.png" alt="Card image cap" />
     <div class="card-body">
-      <h5 class="card-title">Account${i + 1} Details:</h5>
+      <h5 class="card-title">Account Details: ${acc.ID}</h5>
       <p class="card-text">
           <ul class="Show-Details">
               <li id = "bank-name">${acc.bankName}</li>
@@ -23,23 +25,25 @@ fetch("http://localhost:9191/getAllAccounts")
 
      </p>
       <a href="#" class="btn btn-lg btn-primary">Edit</a>
-      <a href="#" class="btn btn-lg btn-primary">Delete</a>
+      <a href="#" class="btn btn-lg btn-primary" onclick="deleteAccount('${acc.userID}')">Delete</a>
+    </div>
     </div>`;
-        cardContainer.insertAdjacentHTML("beforebegin", html);
       });
+      cardContainer.innerHTML = html;
     };
     displayAccountDetails(data);
   });
+};
 
-btnDelete.addEventListener("click", function () {
-  const id = listItemUserID.innerText;
-  console.log(id);
-  fetch("http://localhost:9191/getAllAccounts" + id, {
+const deleteAccount = (userID) => {
+  fetch("http://localhost:9191/deleteAccountByID/" + userID, {
     method: "DELETE",
   })
-    .then((res) => res.json())
-    .then((data) => console.log(data));
-});
+  .then((res) => res.json())
+  .then((data) => {
+    console.log('Delete successfullly', data)
+    getAllAccounts();
+  });
+}
 
-//   const index = data.findIndex((acc) => acc.userID === id);
-//   data.splice(index, 1);
+getAllAccounts();
